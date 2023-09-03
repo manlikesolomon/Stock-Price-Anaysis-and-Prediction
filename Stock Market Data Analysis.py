@@ -17,7 +17,7 @@ stock_prices = stock_prices.history(period='max')
 st.set_page_config(page_title='Tesla Stock Price Analysis',
                    page_icon='icons/tesla.png')
 
-# feature engineering
+## feature engineering
 # create columns for moving avearages
 stock_prices['30-day MA'] = stock_prices['Close'].rolling(window=30).mean()
 stock_prices['60-day MA'] = stock_prices['Close'].rolling(window=60).mean()
@@ -27,12 +27,30 @@ stock_prices['90-day MA'] = stock_prices['Close'].rolling(window=90).mean()
 stock_prices['52-week High'] = stock_prices['Close'].rolling(window=364).max()
 stock_prices['52-week Low'] = stock_prices['Close'].rolling(window=364).min()
 
+# add a column to show the next day's closing price
+stock_prices['Tomorrow'] = stock_prices['Close'].shift(-1)
+
+# create a target column to check if the price went up or dow from the previous day
+stock_prices['Target'] = (stock_prices['Tomorrow'] > stock_prices['Close']).astype('int')
+
 # deleting the stocksplit and dividends columns
 del stock_prices['Stock Splits'] 
 del stock_prices['Dividends']
 
+# add columns for rolling average ratios
+rolling_averages = ["30-day MA","60-day MA","90-day MA"]
 
+for i in rolling_averages:
+    ratio_column = f"Close_Ratio_{i[:2]}"
+    stock_prices[ratio_column] = stock_prices['Close']/stock_prices[i]
+    
+# add columns for trend (number of days price has gone up in the timeframe)
+days = [5, 30, 60, 90]
 
+for i in days:
+    trend_column = f"trend_{i}"
+    stock_prices[trend_column] = stock_prices.shift(1).rolling(i).sum()['Target']
+    
 
 def main():
     # define a latest date variable
@@ -41,13 +59,13 @@ def main():
     
 
     #set selection options
-    options = ['Explore Price Trends', 'Make Predictions']
+    page_options = ['Explore Price Trends', 'Make Predictions']
     
     # using the options in a sidebar
-    selection = st.sidebar.selectbox('Select a page :balloon:',options)
+    page_selection = st.sidebar.selectbox('Select a page :balloon:',page_options)
     
     # fill the explore page
-    if selection == 'Explore Price Trends':
+    if page_selection == 'Explore Price Trends':
         # adding header
         st.header('Analysis on Tesla Stock Price :chart_with_upwards_trend:')
         st.write(f'Prices as at {latest_date}')
@@ -120,13 +138,44 @@ def main():
             # Define colors for each line
             line_colors = ['blue', 'green', 'red', 'purple', 'orange']
             cols = ['Close','30-day MA','60-day MA','52-week High','52-week Low']
-            
+                
             for i, col in enumerate(cols):
                 line_color = line_colors[i % len(line_colors)]
                 if col == "Close":
                     line_color = 'black'  # Stand out color for "Close" line
                 fig2.update_traces(line=dict(color=line_color), selector=dict(name=col))
             st.plotly_chart(fig2)
+            
+    if page_selection == 'Make Predictions':
+        # adding a header
+        st.header('Make Predictions on Market Movement')
+        predictors = ['30-day MA', '60-day MA','90-day MA', '52-week High', 
+                      '52-week Low','Close_Ratio_30', 'Close_Ratio_60', 
+                      'Close_Ratio_90', 'trend_5','trend_30', 'trend_60', 'trend_90']
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            open = st.number_input('Input open price')
+        
+        with col2:
+            high = st.number_input('Input high price')
+                        
+        with col3:
+            low = st.number_input('Input low price')
+            
+        with col4:
+            close = st.number_input('Input close price')
+        
+        input_values = [open, high, low, close]
+        historic_values = stock_prices[predictors].tail(1)
+        historic_values_list = historic_values.values.tolist()
+        # Use list comprehension to concatenate the lists
+        combined_list = input_values + [value for sublist in historic_values_list for value in sublist]
+        
+        # drop a select box to chose models
+        choice = st.selectbox('Pick a model:robot_face:', ['Random Forest Classifier', 'Stacking Classifier'])
+        
             
 # Required to let Streamlit instantiate our web app.  
 if __name__ == '__main__':
