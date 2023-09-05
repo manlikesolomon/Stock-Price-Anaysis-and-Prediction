@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import yfinance as yf
 import datetime
 from datetime import timedelta
+import joblib,os
 
 
 # import and clean data
@@ -147,34 +148,53 @@ def main():
             st.plotly_chart(fig2)
             
     if page_selection == 'Make Predictions':
+        last_day_data = stock_prices.tail(1)        
         # adding a header
         st.header('Make Predictions on Market Movement')
         predictors = ['30-day MA', '60-day MA','90-day MA', '52-week High', 
                       '52-week Low','Close_Ratio_30', 'Close_Ratio_60', 
                       'Close_Ratio_90', 'trend_5','trend_30', 'trend_60', 'trend_90']
         
+        st.markdown('Input Price Values To Make Prediction :money_mouth_face:')
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            open = st.number_input('Input open price')
+            open_price = st.number_input('Input open price', value=last_day_data.Open[0])
         
         with col2:
-            high = st.number_input('Input high price')
+            high = st.number_input('Input high price', value=last_day_data.High[0])
                         
         with col3:
-            low = st.number_input('Input low price')
+            low = st.number_input('Input low price',value=last_day_data.Low[0])
             
         with col4:
-            close = st.number_input('Input close price')
-        
-        input_values = [open, high, low, close]
+            close = st.number_input('Input close price',value=last_day_data.Close[0])
+                    
+        input_values = [open_price, high, low, close]
         historic_values = stock_prices[predictors].tail(1)
         historic_values_list = historic_values.values.tolist()
         # Use list comprehension to concatenate the lists
         combined_list = input_values + [value for sublist in historic_values_list for value in sublist]
+        combined_list = [combined_list]
+
         
-        # drop a select box to chose models
-        choice = st.selectbox('Pick a model:robot_face:', ['Random Forest Classifier', 'Stacking Classifier'])
+        with st.expander('Random Forest Classifier :robot_face:'):
+            st.markdown("We trained and tuned a Random Forest Classifier on 10 years of Tesla stock price data.")
+            st.markdown("The classifier uses various features, including moving averages, price ratios, and trend indicators, to predict whether the closing price of Tesla stock will go up or down on the next trading day.")
+            st.markdown("This predictive model can help you make informed decisions when considering Tesla stock investments.")
+        
+        if st.button('Predict'):
+            if 0 not in input_values:
+                predictor = joblib.load(open(os.path.join('models/rf_model.pkl'),'rb'))
+                proba = predictor.predict_proba(combined_list)
+                st.write(proba[0,1])
+                if proba[0,0] > proba[0,1]:
+                    f"{round(proba[0,0],3)*100}% chance of drop in closing price:arrow_down_small:"
+                else:
+                    f":up:{proba[0,1]*100}% chance of rise :arrow_up_small:" 
+            elif 0 in input_values:
+                st.markdown("<font color='red'><b>Input price values for previous market day!!</b></font> :point_up_2:", unsafe_allow_html=True)
+        
         
             
 # Required to let Streamlit instantiate our web app.  
