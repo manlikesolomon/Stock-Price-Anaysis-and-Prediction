@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import yfinance as yf
-import datetime
 from datetime import timedelta
 import joblib,os
 
