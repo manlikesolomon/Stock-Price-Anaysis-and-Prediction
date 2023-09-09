@@ -39,17 +39,9 @@ To use this repository, follow these steps:
 
 1. Clone the repository to your local machine:
    ```
-   git clone https://github.com/your-username/tesla-stock-prediction.git
+   git clone https://github.com/manlikesolomon/Stock-Price-Anaysis-and-Prediction
    ```
 
-2. Navigate to the project directory:
-   ```
-   cd tesla-stock-prediction
-   ```
-
-3. [Provide instructions for setting up the environment, installing dependencies, and running the code.]
-
-4. Run the Jupyter notebooks or scripts to reproduce the analysis and predictions.
 
 ## Contributing
 
