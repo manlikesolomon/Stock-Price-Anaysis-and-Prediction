@@ -4,4 +4,3 @@ plotly
 yfinance
 datetime
 joblib
-os
