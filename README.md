@@ -19,7 +19,7 @@ In this project, we delve into Tesla's historical stock price data to gain insig
 
 ## Data
 
-We sourced historical Tesla stock price data from [source], spanning from [start date] to [end date]. The dataset includes various attributes such as Open, Close, High, Low prices, trading volumes, and more. It provides a rich foundation for our analysis and model development.
+We sourced historical Tesla stock price data using the yfinance python library, spanning from inception to date. The dataset includes various attributes such as Open, Close, High, Low prices, trading volumes, and more. It provides a rich foundation for our analysis and model development.
 
 ## Analysis
 
@@ -31,7 +31,7 @@ Feature engineering is a crucial step in developing effective machine learning m
 
 ## Machine Learning Model
 
-We have developed a machine learning model for predicting whether Tesla's stock price will rise or fall on the next trading day. The model is built using [mention the libraries or frameworks], and its performance is evaluated using various metrics such as accuracy, precision, recall, and F1-score. We also discuss strategies for model validation and potential improvements.
+We have developed a machine learning model for predicting whether Tesla's stock price will rise or fall on the next trading day. The model is built using python's Scikit-learn library, and its performance is evaluated using various metrics such as accuracy, precision, recall, and F1-score. We also discuss strategies for model validation and potential improvements.
 
 ## Usage
 
@@ -45,7 +45,7 @@ To use this repository, follow these steps:
 
 ## Contributing
 
-We welcome contributions from the community. If you have suggestions, improvements, or additional features you'd like to add to this project, please follow our [Contribution Guidelines](CONTRIBUTING.md).
+We welcome contributions from the community. If you have suggestions, improvements, or additional features you'd like to add to this project.
 
 ## License
 
